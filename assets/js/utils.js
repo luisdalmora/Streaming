@@ -12,17 +12,28 @@ function gerarId() {
 
 function getStreamingIcon(nome) {
     const normalized = normalizarTexto(nome);
-    if (normalized.includes("disney")) return "assets/img/icons/disney-plus.svg";
-    if (normalized.includes("max") || normalized.includes("hbo")) return "assets/img/icons/max.svg";
-    if (normalized.includes("apple")) return "assets/img/icons/apple-tv.svg";
-    if (normalized.includes("netflix")) return "assets/img/icons/netflix.svg";
-    if (normalized.includes("globo")) return "assets/img/icons/globoplay.svg";
-    if (normalized.includes("prime")) return "assets/img/icons/prime-video.svg";
-    if (normalized.includes("spotify")) return "assets/img/icons/spotify.svg";
-    if (normalized.includes("youtube")) return "assets/img/icons/youtube.svg";
-    if (normalized.includes("crunchyroll")) return "assets/img/icons/crunchyroll.svg";
-    if (normalized.includes("meli")) return "assets/img/icons/meli.svg";
-    return "assets/img/icons/default.svg";
+    const icons = {
+        disney: 'disney-plus.svg',
+        max: 'max.svg',
+        hbo: 'max.svg',
+        apple: 'apple-tv.svg',
+        netflix: 'netflix.svg',
+        globo: 'globoplay.svg',
+        prime: 'prime-video.svg',
+        spotify: 'spotify.svg',
+        youtube: 'youtube.svg',
+        crunchyroll: 'crunchyroll.svg',
+        meli: 'meli.svg',
+        paramount: 'paramount.svg',
+        gamepass: 'gamepass.svg',
+        psplus: 'psplus.svg',
+        nintendo: 'nintendo.svg'
+    };
+
+    for (const key in icons) {
+        if (normalized.includes(key)) return CONFIG.ICON_PATH + icons[key];
+    }
+    return CONFIG.ICON_PATH + 'default.svg';
 }
 
 function obterChaveMesAtual() {
@@ -31,16 +42,50 @@ function obterChaveMesAtual() {
 }
 
 function obterMesAtualFormatado() {
-    const meses = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+    const meses = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
     const d = new Date();
     return `${meses[d.getMonth()]}/${d.getFullYear()}`;
 }
 
-function calcularValorIndividual(total, numParticipantes) {
-    if (numParticipantes === 0) return 0;
-    return total / numParticipantes;
+function calcularDivisoes(streamings) {
+    const totais = {};
+    const detalhes = {};
+    PESSOAS_PADRAO.forEach(p => {
+        totais[p] = 0;
+        detalhes[p] = [];
+    });
+
+    streamings.forEach(s => {
+        if (s.participantes.length > 0) {
+            const valorInd = s.valor / s.participantes.length;
+            s.participantes.forEach(p => {
+                totais[p] += valorInd;
+                detalhes[p].push({ nome: s.nome, valor: valorInd });
+            });
+        }
+    });
+    return { totais, detalhes };
 }
 
-function validarValor(valor) {
-    return !isNaN(valor) && valor >= 0;
+function gerarTextoWhatsApp(state) {
+    const { totais, detalhes } = calcularDivisoes(state.streamings);
+    const mes = obterMesAtualFormatado();
+    const chave = obterChaveMesAtual();
+    const totalGeral = state.streamings.reduce((acc, s) => acc + s.valor, 0);
+
+    let texto = `📺 *Resumo Streaming - ${mes}*\n\n`;
+    texto += `💰 *Total Geral:* ${formatarMoeda(totalGeral)}\n\n`;
+
+    PESSOAS_PADRAO.forEach(pessoa => {
+        const status = state.pagamentos[chave][pessoa] === 'pago' ? '✅ Pago' : '⏳ Pendente';
+        texto += `👤 *${pessoa}* (${status})\n`;
+        texto += `Total: *${formatarMoeda(totais[pessoa])}*\n`;
+        
+        detalhes[pessoa].forEach(item => {
+            texto += `- ${item.nome}: ${formatarMoeda(item.valor)}\n`;
+        });
+        texto += `\n`;
+    });
+
+    return texto;
 }

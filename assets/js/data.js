@@ -14,11 +14,12 @@ const STREAMINGS_PADRAO = [
 ];
 
 const CONFIG = {
-    CHAVE_STORAGE_STREAMINGS: 'streaming_data_v2',
-    CHAVE_STORAGE_PAGAMENTOS: 'payment_status_v2',
+    CHAVE_STORAGE_STREAMINGS: 'streaming_data_v3',
+    CHAVE_STORAGE_PAGAMENTOS: 'payment_status_v3',
     CORES_PESSOAS: {
-        "Luis": "#2563eb",
-        "Ivonei": "#7c3aed",
-        "Luciano": "#10b981"
-    }
+        "Luis": "blue",
+        "Ivonei": "purple",
+        "Luciano": "emerald"
+    },
+    ICON_PATH: 'assets/img/icons/'
 };

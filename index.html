@@ -3,224 +3,165 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Controle de Streaming | Premium Dashboard</title>
+    <title>Controle de Streaming | Dashboard</title>
     
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
-    <!-- Styles -->
-    <link rel="stylesheet" href="assets/css/style.css">
+    <!-- Tailwind Generated Styles -->
+    <link rel="stylesheet" href="./assets/css/style.css">
 </head>
-<body>
+<body class="bg-slate-50 text-slate-900 font-sans h-screen flex flex-col overflow-hidden">
 
-    <div class="container">
-        <!-- Hero Section -->
-        <header class="hero-panel">
-            <div class="hero-content">
-                <span id="badge-month" class="status-badge" style="background: rgba(255,255,255,0.2); color: white; margin-bottom: 15px;">Maio/2026</span>
-                <h1>Controle de Streaming</h1>
-                <p>Gerencie a divisão de suas assinaturas de forma profissional e inteligente.</p>
-                
-                <div class="hero-actions">
-                    <button class="btn btn-primary" onclick="copiarResumoWhatsApp()">📱 WhatsApp</button>
-                    <button class="btn btn-outline" style="border-color: rgba(255,255,255,0.4); color: white;" onclick="restaurarPadrao()">🔄 Restaurar</button>
-                    <button class="btn btn-danger" style="background: rgba(239, 68, 68, 0.2); color: #fee2e2;" onclick="limparDados()">🗑️ Limpar Tudo</button>
-                </div>
+    <!-- Topbar Compacta -->
+    <header class="bg-white border-b border-slate-200 px-6 py-3 flex items-center justify-between sticky top-0 z-40 shadow-sm shrink-0">
+        <div class="flex items-center gap-3">
+            <div class="bg-blue-600 p-1.5 rounded-lg text-white">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
             </div>
-            
-            <div class="hero-stats">
-                <div class="hero-stat-item">
-                    <span class="hero-stat-label">Total em Assinaturas</span>
-                    <span id="hero-total" class="hero-stat-value">R$ 0,00</span>
-                </div>
-                <div class="hero-stat-item">
-                    <span class="hero-stat-label">Streamings Ativos</span>
-                    <span id="hero-count" class="hero-stat-value">0</span>
-                </div>
+            <div>
+                <h1 class="text-sm font-extrabold tracking-tight text-slate-800">Controle de Streaming</h1>
+                <p id="topbar-mes" class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Maio/2026</p>
             </div>
-        </header>
+        </div>
 
-        <!-- People Summary Section -->
-        <section>
-            <div class="section-header">
-                <h2 class="section-title">👤 Resumo por Pessoa</h2>
+        <div class="hidden md:flex items-center gap-8">
+            <div class="text-center">
+                <span class="block text-[10px] font-bold text-slate-400 uppercase">Total Geral</span>
+                <span id="topbar-total" class="text-sm font-extrabold text-blue-600">R$ 0,00</span>
             </div>
-            <div id="people-grid" class="people-grid">
-                <!-- Rendered by app.js -->
+            <div class="text-center">
+                <span class="block text-[10px] font-bold text-slate-400 uppercase">Ativos</span>
+                <span id="topbar-count" class="text-sm font-extrabold text-slate-700">0 serviços</span>
             </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+            <button onclick="abrirModalDivisao()" class="p-2 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all" title="Ver Divisão">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 2v-6m10 10V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2z"/></svg>
+            </button>
+            <button onclick="copiarResumo()" class="p-2 text-slate-500 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-all" title="Copiar WhatsApp">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+            </button>
+            <div class="w-px h-6 bg-slate-200 mx-1"></div>
+            <button onclick="restaurarPadrao()" class="p-2 text-slate-400 hover:text-slate-600 transition-all" title="Restaurar">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Dashboard Container -->
+    <main class="flex-1 flex flex-col gap-6 p-6 overflow-hidden max-w-[1400px] mx-auto w-full">
+        
+        <!-- Resumo por Pessoa (Cards Horizontais Compactos) -->
+        <section id="people-summary" class="flex flex-wrap gap-4 shrink-0">
+            <!-- Rendered by app.js -->
         </section>
 
-        <!-- Main Content Layout -->
-        <div class="main-layout">
-            <!-- Left Side: Streaming List & Filters -->
-            <div class="layout-left">
-                <div class="section-header">
-                    <h2 class="section-title">🎬 Gerenciar Streamings</h2>
+        <!-- Área Principal (2 Colunas no Desktop) -->
+        <div class="flex-1 flex flex-col lg:flex-row gap-6 overflow-hidden">
+            
+            <!-- Coluna Esquerda: Lista de Streamings -->
+            <section class="flex-1 flex flex-col min-h-0 card-premium overflow-hidden">
+                <div class="p-4 border-b border-slate-100 flex items-center justify-between shrink-0">
+                    <h2 class="text-sm font-bold text-slate-800">Serviços Ativos</h2>
+                    <div class="relative w-48">
+                        <input type="text" id="search-input" placeholder="Buscar..." class="w-full pl-8 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-blue-400 transition-colors">
+                        <svg class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                    </div>
                 </div>
-
-                <!-- Filters -->
-                <div class="filter-bar">
-                    <input type="text" id="search-input" class="input-style" placeholder="🔍 Buscar streaming..." oninput="aplicarFiltros()">
-                    <select id="filter-person" class="input-style" onchange="aplicarFiltros()">
-                        <option value="Todos">Todas as Pessoas</option>
-                        <option value="Luis">Luis</option>
-                        <option value="Ivonei">Ivonei</option>
-                        <option value="Luciano">Luciano</option>
-                    </select>
-                    <select id="filter-status" class="input-style" onchange="aplicarFiltros()">
-                        <option value="Todos">Todos os Status</option>
-                        <option value="Pago">Pago</option>
-                        <option value="Pendente">Pendente</option>
-                    </select>
-                </div>
-
-                <!-- Streaming Cards List -->
-                <div id="streaming-list" class="streaming-list">
+                
+                <div id="streaming-list" class="flex-1 overflow-y-auto custom-scrollbar">
                     <!-- Rendered by app.js -->
                 </div>
-            </div>
+            </section>
 
-            <!-- Right Side: Add New Form -->
-            <aside class="layout-right">
-                <div class="card-form">
-                    <h3>✨ Novo Streaming</h3>
-                    <p>Adicione um novo serviço à sua lista.</p>
+            <!-- Coluna Direita: Formulário Compacto -->
+            <aside class="w-full lg:w-80 shrink-0 flex flex-col">
+                <div class="card-premium p-5 flex flex-col gap-4">
+                    <div class="flex items-center justify-between">
+                        <h3 id="form-title" class="text-sm font-bold text-slate-800">Novo Streaming</h3>
+                        <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                    </div>
                     
-                    <form id="add-streaming-form">
-                        <div class="form-group">
-                            <label>Nome do Streaming</label>
-                            <input type="text" id="add-nome" class="input-style" placeholder="Ex: Netflix" required>
+                    <form id="streaming-form" class="flex flex-col gap-3">
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Nome do Streaming</label>
+                            <input type="text" id="f-nome" class="input-premium py-2 text-sm" placeholder="Ex: Netflix" required>
                         </div>
                         
-                        <div class="form-group">
-                            <label>Valor Mensal (R$)</label>
-                            <input type="number" step="0.01" id="add-valor" class="input-style" placeholder="0.00" required>
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Valor Mensal</label>
+                            <input type="number" step="0.01" id="f-valor" class="input-premium py-2 text-sm" placeholder="0.00" required>
                         </div>
                         
-                        <div class="form-group">
-                            <label>Pagador Principal</label>
-                            <select id="add-pagador" class="input-style">
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Pagador</label>
+                            <select id="f-pagador" class="input-premium py-2 text-sm appearance-none cursor-pointer">
                                 <option value="Luis">Luis</option>
                                 <option value="Ivonei">Ivonei</option>
                                 <option value="Luciano">Luciano</option>
                             </select>
                         </div>
                         
-                        <div class="form-group">
-                            <label>Participantes da Divisão</label>
-                            <div class="checkbox-list">
-                                <label class="custom-checkbox">
-                                    <input type="checkbox" name="add-participantes" value="Luis" checked>
-                                    <span class="checkmark"></span>
-                                    Luis
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Participantes</label>
+                            <div class="flex flex-wrap gap-2 p-2 bg-slate-50 border border-slate-200 rounded-xl">
+                                <label class="flex items-center gap-1.5 cursor-pointer">
+                                    <input type="checkbox" name="f-participantes" value="Luis" class="w-3.5 h-3.5 text-blue-600 rounded border-slate-300 focus:ring-blue-500" checked>
+                                    <span class="text-xs font-medium text-slate-600">Luis</span>
                                 </label>
-                                <label class="custom-checkbox">
-                                    <input type="checkbox" name="add-participantes" value="Ivonei">
-                                    <span class="checkmark"></span>
-                                    Ivonei
+                                <label class="flex items-center gap-1.5 cursor-pointer">
+                                    <input type="checkbox" name="f-participantes" value="Ivonei" class="w-3.5 h-3.5 text-blue-600 rounded border-slate-300 focus:ring-blue-500">
+                                    <span class="text-xs font-medium text-slate-600">Ivonei</span>
                                 </label>
-                                <label class="custom-checkbox">
-                                    <input type="checkbox" name="add-participantes" value="Luciano">
-                                    <span class="checkmark"></span>
-                                    Luciano
+                                <label class="flex items-center gap-1.5 cursor-pointer">
+                                    <input type="checkbox" name="f-participantes" value="Luciano" class="w-3.5 h-3.5 text-blue-600 rounded border-slate-300 focus:ring-blue-500">
+                                    <span class="text-xs font-medium text-slate-600">Luciano</span>
                                 </label>
                             </div>
                         </div>
-                        
-                        <button type="submit" class="btn btn-success btn-full" style="margin-top: 10px;">
-                            ➕ Adicionar Streaming
-                        </button>
+
+                        <div class="flex flex-col gap-2 mt-2">
+                            <button type="submit" id="btn-save" class="btn-premium bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-200">
+                                Adicionar
+                            </button>
+                            <button type="button" id="btn-cancel" onclick="resetFormUI()" class="btn-premium bg-slate-100 hover:bg-slate-200 text-slate-600 hidden">
+                                Cancelar
+                            </button>
+                        </div>
                     </form>
                 </div>
             </aside>
         </div>
+    </main>
 
-        <!-- Division Table Section -->
-        <section class="table-division-container">
-            <div class="section-header">
-                <h2 class="section-title">⚙️ Configuração da Divisão</h2>
+    <!-- Modal de Divisão Detalhada -->
+    <div id="modal-divisao" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden items-center justify-center p-6 transition-all">
+        <div class="bg-white w-full max-w-xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[80vh]">
+            <div class="p-5 border-b border-slate-100 flex items-center justify-between shrink-0">
+                <h3 class="font-bold text-slate-800">Divisão Detalhada</h3>
+                <button onclick="fecharModalDivisao()" class="p-2 hover:bg-slate-100 rounded-lg transition-colors">
+                    <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
             </div>
-            <table id="table-division">
-                <thead>
-                    <tr>
-                        <th>Streaming</th>
-                        <th>Valor Total</th>
-                        <th>Pagador</th>
-                        <th>Luis</th>
-                        <th>Ivonei</th>
-                        <th>Luciano</th>
-                        <th>Ações</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Rendered by app.js -->
-                </tbody>
-            </table>
-        </section>
-    </div>
-
-    <!-- Edit Modal -->
-    <div id="modal-edit" class="modal-overlay">
-        <div class="modal-content">
-            <div class="section-header">
-                <h2 class="section-title">✏️ Editar Streaming</h2>
+            <div id="modal-divisao-content" class="flex-1 overflow-y-auto custom-scrollbar">
+                <!-- Rendered by app.js -->
             </div>
-            
-            <form id="edit-streaming-form">
-                <input type="hidden" id="edit-id">
-                
-                <div class="form-group">
-                    <label>Nome do Streaming</label>
-                    <input type="text" id="edit-nome" class="input-style" required>
-                </div>
-                
-                <div class="form-group">
-                    <label>Valor Mensal (R$)</label>
-                    <input type="number" step="0.01" id="edit-valor" class="input-style" required>
-                </div>
-                
-                <div class="form-group">
-                    <label>Pagador Principal</label>
-                    <select id="edit-pagador" class="input-style">
-                        <option value="Luis">Luis</option>
-                        <option value="Ivonei">Ivonei</option>
-                        <option value="Luciano">Luciano</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label>Participantes da Divisão</label>
-                    <div class="checkbox-list" style="flex-direction: row; gap: 20px;">
-                        <label class="custom-checkbox">
-                            <input type="checkbox" name="edit-participantes" value="Luis">
-                            <span class="checkmark"></span>
-                            Luis
-                        </label>
-                        <label class="custom-checkbox">
-                            <input type="checkbox" name="edit-participantes" value="Ivonei">
-                            <span class="checkmark"></span>
-                            Ivonei
-                        </label>
-                        <label class="custom-checkbox">
-                            <input type="checkbox" name="edit-participantes" value="Luciano">
-                            <span class="checkmark"></span>
-                            Luciano
-                        </label>
-                    </div>
-                </div>
-                
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline" onclick="fecharModalEdicao()">Cancelar</button>
-                    <button type="submit" class="btn btn-success">Salvar Alterações</button>
-                </div>
-            </form>
+            <div class="p-5 bg-slate-50 border-t border-slate-100 flex justify-end shrink-0">
+                <button onclick="fecharModalDivisao()" class="px-6 py-2 bg-white border border-slate-200 rounded-xl font-bold text-slate-600 hover:bg-slate-100 transition-all">
+                    Fechar
+                </button>
+            </div>
         </div>
     </div>
 
-    <!-- Toast Container -->
-    <div id="toast-container" class="toast-container"></div>
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-6 right-6 px-6 py-3 bg-slate-800 text-white rounded-xl shadow-xl font-bold text-sm transform translate-y-20 opacity-0 transition-all duration-300 z-[100]">
+        Notificação
+    </div>
 
     <!-- Scripts -->
     <script src="assets/js/data.js"></script>

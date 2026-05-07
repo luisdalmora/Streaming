@@ -3,9 +3,9 @@ let state = {
     pagamentos: {},
     filtros: {
         busca: "",
-        pessoa: "Todos",
-        status: "Todos"
-    }
+        pessoa: "Todos"
+    },
+    editingId: null
 };
 
 function inicializarApp() {
@@ -16,342 +16,220 @@ function inicializarApp() {
 }
 
 function setupEventListeners() {
-    document.getElementById('add-streaming-form').addEventListener('submit', adicionarStreaming);
-    document.getElementById('edit-streaming-form').addEventListener('submit', salvarEdicaoStreaming);
+    document.getElementById('streaming-form').addEventListener('submit', handleFormSubmit);
+    document.getElementById('search-input').addEventListener('input', (e) => {
+        state.filtros.busca = e.target.value;
+        renderListaStreamings();
+    });
 }
 
 function renderApp() {
-    renderizarHero();
-    renderizarCardsPessoas();
-    renderizarListaStreamings();
-    renderizarTabelaDivisao();
+    renderTopbar();
+    renderResumoPessoas();
+    renderListaStreamings();
 }
 
-function calcularDivisoes() {
-    const totais = {};
-    const detalhes = {};
-    PESSOAS_PADRAO.forEach(p => {
-        totais[p] = 0;
-        detalhes[p] = [];
-    });
-
-    state.streamings.forEach(s => {
-        if (s.participantes.length > 0) {
-            const valorInd = s.valor / s.participantes.length;
-            s.participantes.forEach(p => {
-                totais[p] += valorInd;
-                detalhes[p].push({ nome: s.nome, valor: valorInd });
-            });
-        }
-    });
-    return { totais, detalhes };
+function renderTopbar() {
+    const total = state.streamings.reduce((acc, s) => acc + s.valor, 0);
+    document.getElementById('topbar-mes').textContent = obterMesAtualFormatado();
+    document.getElementById('topbar-total').textContent = formatarMoeda(total);
+    document.getElementById('topbar-count').textContent = `${state.streamings.length} serviços`;
 }
 
-function calcularTotalGeral() {
-    return state.streamings.reduce((acc, s) => acc + s.valor, 0);
-}
-
-function renderizarHero() {
-    const total = calcularTotalGeral();
-    const count = state.streamings.length;
-    
-    document.getElementById('hero-total').textContent = formatarMoeda(total);
-    document.getElementById('hero-count').textContent = count;
-    document.getElementById('badge-month').textContent = obterMesAtualFormatado();
-}
-
-function renderizarCardsPessoas() {
-    const { totais, detalhes } = calcularDivisoes();
-    const container = document.getElementById('people-grid');
+function renderResumoPessoas() {
+    const { totais, detalhes } = calcularDivisoes(state.streamings);
+    const container = document.getElementById('people-summary');
     const chave = obterChaveMesAtual();
-    const statusPags = state.pagamentos[chave];
 
     container.innerHTML = PESSOAS_PADRAO.map(pessoa => {
         const total = totais[pessoa];
-        const status = statusPags[pessoa] || "pendente";
-        const isPago = status === "pago";
-        const cor = CONFIG.CORES_PESSOAS[pessoa];
+        const status = state.pagamentos[chave][pessoa];
+        const color = CONFIG.CORES_PESSOAS[pessoa];
+        const numServicos = detalhes[pessoa].length;
 
         return `
-            <div class="person-card" style="border-top: 6px solid ${cor}">
-                <div class="person-card-header">
-                    <div class="person-avatar" style="background: ${cor}20; color: ${cor}">
-                        ${pessoa[0]}
-                    </div>
-                    <div class="person-meta">
-                        <h3>${pessoa}</h3>
-                        <span class="status-badge ${isPago ? 'status-pago' : 'status-pendente'}">
-                            ${status}
-                        </span>
-                    </div>
-                </div>
-                <div class="person-card-body">
-                    <div class="person-total-value">${formatarMoeda(total)}</div>
-                    <p class="person-sub">${detalhes[pessoa].length} streamings vinculados</p>
-                    
-                    <ul class="person-items-list">
-                        ${detalhes[pessoa].map(item => `
-                            <li>
-                                <div class="item-info">
-                                    <img src="${getStreamingIcon(item.nome)}" alt="${item.nome}">
-                                    <span>${item.nome}</span>
-                                </div>
-                                <span class="item-price">${formatarMoeda(item.valor)}</span>
-                            </li>
-                        `).join('')}
-                    </ul>
-                </div>
-                <div class="person-card-footer">
-                    <button class="btn ${isPago ? 'btn-outline' : 'btn-success'} btn-full" onclick="alternarStatusPagamento('${pessoa}')">
-                        ${isPago ? 'Marcar como Pendente' : 'Marcar como Pago'}
+            <div class="card-premium p-3 flex-1 min-w-[140px] flex flex-col gap-1 border-l-4 border-${color}-500">
+                <div class="flex justify-between items-start">
+                    <span class="text-xs font-bold text-slate-500 uppercase">${pessoa}</span>
+                    <button onclick="togglePagamento('${pessoa}')" class="text-[10px] px-2 py-0.5 rounded-full font-bold uppercase transition-colors ${status === 'pago' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}">
+                        ${status}
                     </button>
                 </div>
+                <div class="text-lg font-extrabold text-slate-800">${formatarMoeda(total)}</div>
+                <div class="text-[10px] text-slate-400 font-medium">${numServicos} serviços vinculados</div>
             </div>
         `;
     }).join('');
 }
 
-function renderizarListaStreamings() {
+function renderListaStreamings() {
     const container = document.getElementById('streaming-list');
     const filtered = state.streamings.filter(s => {
         const matchBusca = normalizarTexto(s.nome).includes(normalizarTexto(state.filtros.busca));
-        const matchPessoa = state.filtros.pessoa === "Todos" || s.participantes.includes(state.filtros.pessoa);
-        
-        let matchStatus = true;
-        if (state.filtros.status !== "Todos") {
-            const chave = obterChaveMesAtual();
-            const statusRef = state.pagamentos[chave][s.pagador];
-            matchStatus = statusRef === state.filtros.status.toLowerCase();
-        }
-        return matchBusca && matchPessoa && matchStatus;
+        return matchBusca;
     });
 
     if (filtered.length === 0) {
-        container.innerHTML = `<div class="empty-state">Nenhum streaming encontrado.</div>`;
+        container.innerHTML = `<div class="p-8 text-center text-slate-400 font-medium">Nenhum streaming encontrado.</div>`;
         return;
     }
 
     container.innerHTML = filtered.map(s => `
-        <div class="streaming-card-horizontal">
-            <div class="s-card-main">
-                <div class="s-card-icon">
-                    <img src="${getStreamingIcon(s.nome)}" alt="${s.nome}">
-                </div>
-                <div class="s-card-info">
-                    <h4>${s.nome}</h4>
-                    <p>Total: <strong>${formatarMoeda(s.valor)}</strong> | Pagador: <strong>${s.pagador}</strong></p>
-                </div>
+        <div class="flex items-center gap-4 p-3 hover:bg-slate-50 transition-colors border-b border-slate-100 last:border-0 group">
+            <div class="w-10 h-10 bg-white border border-slate-200 rounded-lg flex items-center justify-center p-2 shadow-sm">
+                <img src="${getStreamingIcon(s.nome)}" alt="${s.nome}" class="w-full h-full object-contain" onerror="this.src='${CONFIG.ICON_PATH}default.svg'">
             </div>
-            <div class="s-card-details">
-                <div class="s-card-val-ind">
-                    <span>Individual</span>
-                    <strong>${formatarMoeda(s.participantes.length > 0 ? s.valor / s.participantes.length : 0)}</strong>
-                </div>
-                <div class="s-card-participants">
-                    ${s.participantes.map(p => `
-                        <div class="p-avatar-sm" title="${p}" style="background: ${CONFIG.CORES_PESSOAS[p]}">
-                            ${p[0]}
-                        </div>
-                    `).join('')}
-                </div>
-                <div class="s-card-actions">
-                    <button class="btn-icon" onclick="abrirModalEdicao(${s.id})" title="Editar">✏️</button>
-                    <button class="btn-icon btn-icon-danger" onclick="removerStreaming(${s.id})" title="Excluir">🗑️</button>
-                </div>
+            <div class="flex-1 min-w-0">
+                <h4 class="text-sm font-bold text-slate-800 truncate">${s.nome}</h4>
+                <p class="text-[11px] text-slate-400 font-medium">Pago por <span class="text-slate-600 font-bold">${s.pagador}</span></p>
+            </div>
+            <div class="text-right">
+                <div class="text-sm font-extrabold text-slate-700">${formatarMoeda(s.valor)}</div>
+                <div class="text-[10px] text-slate-400 font-bold">${s.participantes.length} pessoas</div>
+            </div>
+            <div class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <button onclick="prepararEdicao(${s.id})" class="p-1.5 hover:bg-blue-50 text-blue-600 rounded-lg transition-colors" title="Editar">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                </button>
+                <button onclick="removerStreaming(${s.id})" class="p-1.5 hover:bg-rose-50 text-rose-600 rounded-lg transition-colors" title="Excluir">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                </button>
             </div>
         </div>
     `).join('');
 }
 
-function renderizarTabelaDivisao() {
-    const tbody = document.querySelector('#table-division tbody');
-    tbody.innerHTML = state.streamings.map(s => `
-        <tr>
-            <td>
-                <div class="td-streaming">
-                    <img src="${getStreamingIcon(s.nome)}" alt="${s.nome}">
-                    <span>${s.nome}</span>
-                </div>
-            </td>
-            <td>${formatarMoeda(s.valor)}</td>
-            <td><span class="pagador-tag">${s.pagador}</span></td>
-            ${PESSOAS_PADRAO.map(p => `
-                <td>
-                    <label class="custom-checkbox">
-                        <input type="checkbox" ${s.participantes.includes(p) ? 'checked' : ''} onchange="alternarParticipante(${s.id}, '${p}')">
-                        <span class="checkmark"></span>
-                    </label>
-                </td>
-            `).join('')}
-            <td>
-                <button class="btn-sm btn-outline" onclick="abrirModalEdicao(${s.id})">Editar</button>
-            </td>
-        </tr>
-    `).join('');
-}
-
-function adicionarStreaming(e) {
+function handleFormSubmit(e) {
     e.preventDefault();
-    const nome = document.getElementById('add-nome').value;
-    const valor = parseFloat(document.getElementById('add-valor').value);
-    const pagador = document.getElementById('add-pagador').value;
-    const participantes = Array.from(document.querySelectorAll('input[name="add-participantes"]:checked')).map(cb => cb.value);
+    const nome = document.getElementById('f-nome').value;
+    const valor = parseFloat(document.getElementById('f-valor').value);
+    const pagador = document.getElementById('f-pagador').value;
+    const participantes = Array.from(document.querySelectorAll('input[name="f-participantes"]:checked')).map(cb => cb.value);
 
-    if (!nome || !validarValor(valor)) {
-        mostrarToast("Preencha todos os campos corretamente.", "error");
-        return;
+    if (state.editingId) {
+        const idx = state.streamings.findIndex(s => s.id === state.editingId);
+        state.streamings[idx] = { id: state.editingId, nome, valor, pagador, participantes };
+        state.editingId = null;
+        mostrarToast("Streaming atualizado!");
+    } else {
+        const novo = { id: gerarId(), nome, valor, pagador, participantes };
+        state.streamings.push(novo);
+        mostrarToast("Streaming adicionado!");
     }
 
-    const novo = { id: gerarId(), nome, valor, pagador, participantes };
-    state.streamings.push(novo);
     salvarStreamings(state.streamings);
     renderApp();
     e.target.reset();
-    mostrarToast("Streaming adicionado com sucesso!", "success");
+    resetFormUI();
 }
 
-function abrirModalEdicao(id) {
+function prepararEdicao(id) {
     const s = state.streamings.find(x => x.id === id);
     if (!s) return;
 
-    document.getElementById('edit-id').value = s.id;
-    document.getElementById('edit-nome').value = s.nome;
-    document.getElementById('edit-valor').value = s.valor;
-    document.getElementById('edit-pagador').value = s.pagador;
-
-    const checkboxes = document.querySelectorAll('input[name="edit-participantes"]');
-    checkboxes.forEach(cb => {
+    state.editingId = id;
+    document.getElementById('f-nome').value = s.nome;
+    document.getElementById('f-valor').value = s.valor;
+    document.getElementById('f-pagador').value = s.pagador;
+    
+    document.querySelectorAll('input[name="f-participantes"]').forEach(cb => {
         cb.checked = s.participantes.includes(cb.value);
     });
 
-    document.getElementById('modal-edit').classList.add('active');
+    document.getElementById('form-title').textContent = "Editar Streaming";
+    document.getElementById('btn-save').textContent = "Salvar Alterações";
+    document.getElementById('btn-cancel').classList.remove('hidden');
 }
 
-function fecharModalEdicao() {
-    document.getElementById('modal-edit').classList.remove('active');
-}
-
-function salvarEdicaoStreaming(e) {
-    e.preventDefault();
-    const id = parseInt(document.getElementById('edit-id').value);
-    const nome = document.getElementById('edit-nome').value;
-    const valor = parseFloat(document.getElementById('edit-valor').value);
-    const pagador = document.getElementById('edit-pagador').value;
-    const participantes = Array.from(document.querySelectorAll('input[name="edit-participantes"]:checked')).map(cb => cb.value);
-
-    const idx = state.streamings.findIndex(s => s.id === id);
-    if (idx !== -1) {
-        state.streamings[idx] = { ...state.streamings[idx], nome, valor, pagador, participantes };
-        salvarStreamings(state.streamings);
-        renderApp();
-        fecharModalEdicao();
-        mostrarToast("Streaming atualizado com sucesso!", "success");
-    }
+function resetFormUI() {
+    state.editingId = null;
+    document.getElementById('form-title').textContent = "Novo Streaming";
+    document.getElementById('btn-save').textContent = "Adicionar";
+    document.getElementById('btn-cancel').classList.add('hidden');
+    document.getElementById('streaming-form').reset();
 }
 
 function removerStreaming(id) {
-    if (confirm("Deseja realmente excluir este streaming?")) {
+    if (confirm("Deseja remover este streaming?")) {
         state.streamings = state.streamings.filter(s => s.id !== id);
         salvarStreamings(state.streamings);
         renderApp();
-        mostrarToast("Streaming removido.", "info");
+        mostrarToast("Streaming removido.");
     }
 }
 
-function alternarParticipante(streamingId, pessoa) {
-    const s = state.streamings.find(x => x.id === streamingId);
-    if (s) {
-        if (s.participantes.includes(pessoa)) {
-            s.participantes = s.participantes.filter(p => p !== pessoa);
-        } else {
-            s.participantes.push(pessoa);
-        }
-        salvarStreamings(state.streamings);
-        renderApp();
-    }
-}
-
-function alternarStatusPagamento(pessoa) {
+function togglePagamento(pessoa) {
     const chave = obterChaveMesAtual();
-    const atual = state.pagamentos[chave][pessoa];
-    state.pagamentos[chave][pessoa] = atual === "pago" ? "pendente" : "pago";
-    
+    state.pagamentos[chave][pessoa] = state.pagamentos[chave][pessoa] === 'pago' ? 'pendente' : 'pago';
     salvarStatusPagamentos(state.pagamentos);
-    renderizarCardsPessoas();
-    mostrarToast(`Status de ${pessoa} alterado.`, "info");
+    renderResumoPessoas();
 }
 
-function aplicarFiltros() {
-    state.filtros.busca = document.getElementById('search-input').value;
-    state.filtros.pessoa = document.getElementById('filter-person').value;
-    state.filtros.status = document.getElementById('filter-status').value;
-    renderizarListaStreamings();
-}
-
-function copiarResumoWhatsApp() {
-    const { totais, detalhes } = calcularDivisoes();
-    const chave = obterChaveMesAtual();
-    const mesFormatado = obterMesAtualFormatado();
+function abrirModalDivisao() {
+    const { totais, detalhes } = calcularDivisoes(state.streamings);
+    const container = document.getElementById('modal-divisao-content');
     
-    let texto = `📺 *Resumo Streaming - ${mesFormatado}*\n\n`;
+    container.innerHTML = state.streamings.map(s => `
+        <div class="p-4 border-b border-slate-100">
+            <div class="flex justify-between items-center mb-2">
+                <span class="font-bold text-slate-800">${s.nome}</span>
+                <span class="text-sm font-extrabold text-blue-600">${formatarMoeda(s.valor)}</span>
+            </div>
+            <div class="flex flex-wrap gap-2">
+                ${PESSOAS_PADRAO.map(p => {
+                    const participa = s.participantes.includes(p);
+                    const valorInd = participa ? s.valor / s.participantes.length : 0;
+                    return `
+                        <div class="px-2 py-1 rounded text-[10px] font-bold ${participa ? 'bg-blue-50 text-blue-600' : 'bg-slate-50 text-slate-300'}">
+                            ${p}: ${formatarMoeda(valorInd)}
+                        </div>
+                    `;
+                }).join('')}
+            </div>
+        </div>
+    `).join('');
 
-    PESSOAS_PADRAO.forEach(pessoa => {
-        const status = state.pagamentos[chave][pessoa];
-        texto += `👤 *${pessoa}*\n`;
-        texto += `Total: ${formatarMoeda(totais[pessoa])}\n`;
-        texto += `Status: ${status.charAt(0).toUpperCase() + status.slice(1)}\n`;
-        
-        detalhes[pessoa].forEach(item => {
-            texto += `- ${item.nome}: ${formatarMoeda(item.valor)}\n`;
-        });
-        texto += `\n`;
-    });
+    document.getElementById('modal-divisao').classList.remove('hidden');
+    document.getElementById('modal-divisao').classList.add('flex');
+}
 
+function fecharModalDivisao() {
+    document.getElementById('modal-divisao').classList.add('hidden');
+    document.getElementById('modal-divisao').classList.remove('flex');
+}
+
+function copiarResumo() {
+    const texto = gerarTextoWhatsApp(state);
     navigator.clipboard.writeText(texto).then(() => {
-        mostrarToast("Resumo copiado para WhatsApp!", "success");
+        mostrarToast("Resumo copiado para WhatsApp!");
     });
-}
-
-function mostrarToast(mensagem, tipo = "success") {
-    const container = document.getElementById('toast-container');
-    const toast = document.createElement('div');
-    toast.className = `toast toast-${tipo}`;
-    
-    const icons = {
-        success: '✅',
-        error: '❌',
-        info: 'ℹ️',
-        warning: '⚠️'
-    };
-
-    toast.innerHTML = `<span>${icons[tipo] || '🔔'}</span> ${mensagem}`;
-    container.appendChild(toast);
-
-    setTimeout(() => {
-        toast.style.opacity = '0';
-        toast.style.transform = 'translateY(-20px)';
-        setTimeout(() => toast.remove(), 300);
-    }, 3000);
 }
 
 function restaurarPadrao() {
-    if (confirm("Deseja restaurar os dados padrão?")) {
+    if (confirm("Restaurar dados padrão?")) {
         const data = restaurarDadosPadrao();
         state.streamings = data.streamings;
         state.pagamentos = data.pagamentos;
         renderApp();
-        mostrarToast("Dados restaurados com sucesso!", "info");
+        mostrarToast("Dados restaurados.");
     }
 }
 
-function limparDados() {
-    if (confirm("Deseja limpar todos os dados?")) {
-        limparStorage();
-        state.streamings = [];
-        state.pagamentos = carregarStatusPagamentos();
-        renderApp();
-        mostrarToast("Dados limpos.", "warning");
-    }
+function mostrarToast(msg) {
+    const toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.classList.remove('translate-y-20', 'opacity-0');
+    setTimeout(() => {
+        toast.classList.add('translate-y-20', 'opacity-0');
+    }, 3000);
 }
 
 window.onload = inicializarApp;
+window.togglePagamento = togglePagamento;
+window.prepararEdicao = prepararEdicao;
+window.removerStreaming = removerStreaming;
+window.abrirModalDivisao = abrirModalDivisao;
+window.fecharModalDivisao = fecharModalDivisao;
+window.copiarResumo = copiarResumo;
+window.restaurarPadrao = restaurarPadrao;
+window.resetFormUI = resetFormUI;
