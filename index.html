@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle de Streaming | Premium Dashboard</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+    <div class="container">
+        <!-- Hero Section -->
+        <header class="hero-panel">
+            <div class="hero-content">
+                <span id="badge-month" class="status-badge" style="background: rgba(255,255,255,0.2); color: white; margin-bottom: 15px;">Maio/2026</span>
+                <h1>Controle de Streaming</h1>
+                <p>Gerencie a divisão de suas assinaturas de forma profissional e inteligente.</p>
+                
+                <div class="hero-actions">
+                    <button class="btn btn-primary" onclick="copiarResumoWhatsApp()">📱 WhatsApp</button>
+                    <button class="btn btn-outline" style="border-color: rgba(255,255,255,0.4); color: white;" onclick="restaurarPadrao()">🔄 Restaurar</button>
+                    <button class="btn btn-danger" style="background: rgba(239, 68, 68, 0.2); color: #fee2e2;" onclick="limparDados()">🗑️ Limpar Tudo</button>
+                </div>
+            </div>
+            
+            <div class="hero-stats">
+                <div class="hero-stat-item">
+                    <span class="hero-stat-label">Total em Assinaturas</span>
+                    <span id="hero-total" class="hero-stat-value">R$ 0,00</span>
+                </div>
+                <div class="hero-stat-item">
+                    <span class="hero-stat-label">Streamings Ativos</span>
+                    <span id="hero-count" class="hero-stat-value">0</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- People Summary Section -->
+        <section>
+            <div class="section-header">
+                <h2 class="section-title">👤 Resumo por Pessoa</h2>
+            </div>
+            <div id="people-grid" class="people-grid">
+                <!-- Rendered by app.js -->
+            </div>
+        </section>
+
+        <!-- Main Content Layout -->
+        <div class="main-layout">
+            <!-- Left Side: Streaming List & Filters -->
+            <div class="layout-left">
+                <div class="section-header">
+                    <h2 class="section-title">🎬 Gerenciar Streamings</h2>
+                </div>
+
+                <!-- Filters -->
+                <div class="filter-bar">
+                    <input type="text" id="search-input" class="input-style" placeholder="🔍 Buscar streaming..." oninput="aplicarFiltros()">
+                    <select id="filter-person" class="input-style" onchange="aplicarFiltros()">
+                        <option value="Todos">Todas as Pessoas</option>
+                        <option value="Luis">Luis</option>
+                        <option value="Ivonei">Ivonei</option>
+                        <option value="Luciano">Luciano</option>
+                    </select>
+                    <select id="filter-status" class="input-style" onchange="aplicarFiltros()">
+                        <option value="Todos">Todos os Status</option>
+                        <option value="Pago">Pago</option>
+                        <option value="Pendente">Pendente</option>
+                    </select>
+                </div>
+
+                <!-- Streaming Cards List -->
+                <div id="streaming-list" class="streaming-list">
+                    <!-- Rendered by app.js -->
+                </div>
+            </div>
+
+            <!-- Right Side: Add New Form -->
+            <aside class="layout-right">
+                <div class="card-form">
+                    <h3>✨ Novo Streaming</h3>
+                    <p>Adicione um novo serviço à sua lista.</p>
+                    
+                    <form id="add-streaming-form">
+                        <div class="form-group">
+                            <label>Nome do Streaming</label>
+                            <input type="text" id="add-nome" class="input-style" placeholder="Ex: Netflix" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Valor Mensal (R$)</label>
+                            <input type="number" step="0.01" id="add-valor" class="input-style" placeholder="0.00" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Pagador Principal</label>
+                            <select id="add-pagador" class="input-style">
+                                <option value="Luis">Luis</option>
+                                <option value="Ivonei">Ivonei</option>
+                                <option value="Luciano">Luciano</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Participantes da Divisão</label>
+                            <div class="checkbox-list">
+                                <label class="custom-checkbox">
+                                    <input type="checkbox" name="add-participantes" value="Luis" checked>
+                                    <span class="checkmark"></span>
+                                    Luis
+                                </label>
+                                <label class="custom-checkbox">
+                                    <input type="checkbox" name="add-participantes" value="Ivonei">
+                                    <span class="checkmark"></span>
+                                    Ivonei
+                                </label>
+                                <label class="custom-checkbox">
+                                    <input type="checkbox" name="add-participantes" value="Luciano">
+                                    <span class="checkmark"></span>
+                                    Luciano
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-success btn-full" style="margin-top: 10px;">
+                            ➕ Adicionar Streaming
+                        </button>
+                    </form>
+                </div>
+            </aside>
+        </div>
+
+        <!-- Division Table Section -->
+        <section class="table-division-container">
+            <div class="section-header">
+                <h2 class="section-title">⚙️ Configuração da Divisão</h2>
+            </div>
+            <table id="table-division">
+                <thead>
+                    <tr>
+                        <th>Streaming</th>
+                        <th>Valor Total</th>
+                        <th>Pagador</th>
+                        <th>Luis</th>
+                        <th>Ivonei</th>
+                        <th>Luciano</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Rendered by app.js -->
+                </tbody>
+            </table>
+        </section>
+    </div>
+
+    <!-- Edit Modal -->
+    <div id="modal-edit" class="modal-overlay">
+        <div class="modal-content">
+            <div class="section-header">
+                <h2 class="section-title">✏️ Editar Streaming</h2>
+            </div>
+            
+            <form id="edit-streaming-form">
+                <input type="hidden" id="edit-id">
+                
+                <div class="form-group">
+                    <label>Nome do Streaming</label>
+                    <input type="text" id="edit-nome" class="input-style" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Valor Mensal (R$)</label>
+                    <input type="number" step="0.01" id="edit-valor" class="input-style" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Pagador Principal</label>
+                    <select id="edit-pagador" class="input-style">
+                        <option value="Luis">Luis</option>
+                        <option value="Ivonei">Ivonei</option>
+                        <option value="Luciano">Luciano</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Participantes da Divisão</label>
+                    <div class="checkbox-list" style="flex-direction: row; gap: 20px;">
+                        <label class="custom-checkbox">
+                            <input type="checkbox" name="edit-participantes" value="Luis">
+                            <span class="checkmark"></span>
+                            Luis
+                        </label>
+                        <label class="custom-checkbox">
+                            <input type="checkbox" name="edit-participantes" value="Ivonei">
+                            <span class="checkmark"></span>
+                            Ivonei
+                        </label>
+                        <label class="custom-checkbox">
+                            <input type="checkbox" name="edit-participantes" value="Luciano">
+                            <span class="checkmark"></span>
+                            Luciano
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="fecharModalEdicao()">Cancelar</button>
+                    <button type="submit" class="btn btn-success">Salvar Alterações</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Scripts -->
+    <script src="assets/js/data.js"></script>
+    <script src="assets/js/utils.js"></script>
+    <script src="assets/js/storage.js"></script>
+    <script src="assets/js/app.js"></script>
+</body>
+</html>
