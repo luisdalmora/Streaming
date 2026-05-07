@@ -10,133 +10,160 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
-    <!-- Tailwind Generated Styles -->
-    <link rel="stylesheet" href="./assets/css/style.css">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Custom Premium Styles -->
+    <link rel="stylesheet" href="./assets/css/dashboard.css">
 </head>
-<body class="bg-slate-50 text-slate-900 font-sans h-screen flex flex-col overflow-hidden">
 
-    <!-- Topbar Compacta -->
-    <header class="bg-white border-b border-slate-200 px-6 py-3 flex items-center justify-between sticky top-0 z-40 shadow-sm shrink-0">
-        <div class="flex items-center gap-3">
-            <div class="bg-blue-600 p-1.5 rounded-lg text-white">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-            </div>
-            <div>
-                <h1 class="text-sm font-extrabold tracking-tight text-slate-800">Controle de Streaming</h1>
-                <p id="topbar-mes" class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Maio/2026</p>
-            </div>
-        </div>
+<body class="bg-slate-50 text-slate-900 font-sans h-screen overflow-hidden">
 
-        <div class="hidden md:flex items-center gap-8">
-            <div class="text-center">
-                <span class="block text-[10px] font-bold text-slate-400 uppercase">Total Geral</span>
-                <span id="topbar-total" class="text-sm font-extrabold text-blue-600">R$ 0,00</span>
-            </div>
-            <div class="text-center">
-                <span class="block text-[10px] font-bold text-slate-400 uppercase">Ativos</span>
-                <span id="topbar-count" class="text-sm font-extrabold text-slate-700">0 serviços</span>
-            </div>
-        </div>
-
-        <div class="flex items-center gap-2">
-            <button onclick="abrirModalDivisao()" class="p-2 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all" title="Ver Divisão">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 2v-6m10 10V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2z"/></svg>
-            </button>
-            <button onclick="copiarResumo()" class="p-2 text-slate-500 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-all" title="Copiar WhatsApp">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
-            </button>
-            <div class="w-px h-6 bg-slate-200 mx-1"></div>
-            <button onclick="restaurarPadrao()" class="p-2 text-slate-400 hover:text-slate-600 transition-all" title="Restaurar">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-            </button>
-        </div>
-    </header>
-
-    <!-- Main Dashboard Container -->
-    <main class="flex-1 flex flex-col gap-6 p-6 overflow-hidden max-w-[1400px] mx-auto w-full">
-        
-        <!-- Resumo por Pessoa (Cards Horizontais Compactos) -->
-        <section id="people-summary" class="flex flex-wrap gap-4 shrink-0">
-            <!-- Rendered by app.js -->
-        </section>
-
-        <!-- Área Principal (2 Colunas no Desktop) -->
-        <div class="flex-1 flex flex-col lg:flex-row gap-6 overflow-hidden">
-            
-            <!-- Coluna Esquerda: Lista de Streamings -->
-            <section class="flex-1 flex flex-col min-h-0 card-premium overflow-hidden">
-                <div class="p-4 border-b border-slate-100 flex items-center justify-between shrink-0">
-                    <h2 class="text-sm font-bold text-slate-800">Serviços Ativos</h2>
-                    <div class="relative w-48">
-                        <input type="text" id="search-input" placeholder="Buscar..." class="w-full pl-8 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-blue-400 transition-colors">
-                        <svg class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                    </div>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header flex items-center gap-3 mb-4">
+                <div class="bg-blue-600 p-2 rounded-xl text-white shadow-lg shadow-blue-900/20">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
                 </div>
-                
-                <div id="streaming-list" class="flex-1 overflow-y-auto custom-scrollbar">
-                    <!-- Rendered by app.js -->
-                </div>
-            </section>
+                <h1 class="text-sm font-extrabold tracking-tight text-white/90">StreamManager</h1>
+            </div>
 
-            <!-- Coluna Direita: Formulário Compacto -->
-            <aside class="w-full lg:w-80 shrink-0 flex flex-col">
-                <div class="card-premium p-5 flex flex-col gap-4">
-                    <div class="flex items-center justify-between">
-                        <h3 id="form-title" class="text-sm font-bold text-slate-800">Novo Streaming</h3>
-                        <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+
+            <nav id="month-list" class="sidebar-nav">
+                <!-- Rendered by app.js -->
+            </nav>
+
+            <div class="sidebar-footer">
+                <button onclick="criarNovoMes()" class="w-full btn-premium bg-white/10 hover:bg-white/20 text-white border border-white/10">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    <span class="nav-text">Novo Mês</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Dashboard Container -->
+        <main class="main-content">
+            <!-- Topbar Compacta -->
+            <header class="bg-white border-b border-slate-200 px-8 py-4 flex items-center justify-between sticky top-0 z-40 shadow-sm shrink-0">
+                <div>
+                    <h2 id="current-month-title" class="text-xl font-extrabold text-slate-800">Maio/2026</h2>
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Painel de Fechamento</p>
+                </div>
+
+                <div class="flex items-center gap-4">
+                    <button id="btn-duplicate" onclick="duplicarMesAnterior()" class="btn-premium bg-slate-50 hover:bg-blue-50 text-slate-600 hover:text-blue-600 border border-slate-200 whitespace-nowrap" title="Duplicar Mês Anterior">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+                        <span class="text-xs">Duplicar Anterior</span>
+                    </button>
+                    <div class="w-px h-8 bg-slate-200"></div>
+
+                    <button onclick="abrirModalDivisao()" class="p-2.5 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all" title="Ver Divisão">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 2v-6m10 10V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2z"/></svg>
+                    </button>
+                    <button onclick="copiarResumo()" class="p-2.5 text-slate-500 hover:text-emerald-600 hover:bg-emerald-50 rounded-xl transition-all" title="Copiar WhatsApp">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+                    </button>
+                </div>
+            </header>
+
+            <div class="flex-1 overflow-y-auto custom-scrollbar p-8">
+                <!-- Financial Cards -->
+                <section class="financial-cards mb-8">
+                    <div class="finance-card blue">
+                        <p class="card-label">Total do Mês</p>
+                        <h3 id="card-total-mes" class="card-value">R$ 0,00</h3>
                     </div>
-                    
-                    <form id="streaming-form" class="flex flex-col gap-3">
-                        <div class="space-y-1">
-                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Nome do Streaming</label>
-                            <input type="text" id="f-nome" class="input-premium py-2 text-sm" placeholder="Ex: Netflix" required>
+                    <div class="finance-card green">
+                        <p class="card-label">Total Pago</p>
+                        <h3 id="card-total-pago" class="card-value">R$ 0,00</h3>
+                    </div>
+                    <div class="finance-card orange">
+                        <p class="card-label">Pendente</p>
+                        <h3 id="card-total-pendente" class="card-value">R$ 0,00</h3>
+                    </div>
+                </section>
+
+                <div class="grid grid-cols-1 xl:grid-cols-3 gap-8 items-start">
+                    <!-- Lista de Serviços -->
+                    <div class="xl:col-span-2 space-y-6">
+                        <div id="people-payment-status" class="flex flex-wrap gap-4">
+                            <!-- Rendered by app.js: Status de pagamento por pessoa -->
                         </div>
-                        
-                        <div class="space-y-1">
-                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Valor Mensal</label>
-                            <input type="number" step="0.01" id="f-valor" class="input-premium py-2 text-sm" placeholder="0.00" required>
-                        </div>
-                        
-                        <div class="space-y-1">
-                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Pagador</label>
-                            <select id="f-pagador" class="input-premium py-2 text-sm appearance-none cursor-pointer">
-                                <option value="Luis">Luis</option>
-                                <option value="Ivonei">Ivonei</option>
-                                <option value="Luciano">Luciano</option>
-                            </select>
-                        </div>
-                        
-                        <div class="space-y-1">
-                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Participantes</label>
-                            <div class="flex flex-wrap gap-2 p-2 bg-slate-50 border border-slate-200 rounded-xl">
-                                <label class="flex items-center gap-1.5 cursor-pointer">
-                                    <input type="checkbox" name="f-participantes" value="Luis" class="w-3.5 h-3.5 text-blue-600 rounded border-slate-300 focus:ring-blue-500" checked>
-                                    <span class="text-xs font-medium text-slate-600">Luis</span>
-                                </label>
-                                <label class="flex items-center gap-1.5 cursor-pointer">
-                                    <input type="checkbox" name="f-participantes" value="Ivonei" class="w-3.5 h-3.5 text-blue-600 rounded border-slate-300 focus:ring-blue-500">
-                                    <span class="text-xs font-medium text-slate-600">Ivonei</span>
-                                </label>
-                                <label class="flex items-center gap-1.5 cursor-pointer">
-                                    <input type="checkbox" name="f-participantes" value="Luciano" class="w-3.5 h-3.5 text-blue-600 rounded border-slate-300 focus:ring-blue-500">
-                                    <span class="text-xs font-medium text-slate-600">Luciano</span>
-                                </label>
+
+                        <section class="card-premium overflow-hidden">
+                            <div class="p-5 border-b border-slate-100 flex items-center justify-between">
+                                <h2 class="text-sm font-bold text-slate-800">Serviços Ativos</h2>
+                                <div class="relative w-64">
+                                    <input type="text" id="search-input" placeholder="Filtrar serviços..." class="w-full pl-10 pr-4 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-400 transition-colors">
+                                    <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                                </div>
                             </div>
-                        </div>
+                            
+                            <div id="streaming-list" class="divide-y divide-slate-100">
+                                <!-- Rendered by app.js -->
+                            </div>
+                        </section>
+                    </div>
 
-                        <div class="flex flex-col gap-2 mt-2">
-                            <button type="submit" id="btn-save" class="btn-premium bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-200">
-                                Adicionar
-                            </button>
-                            <button type="button" id="btn-cancel" onclick="resetFormUI()" class="btn-premium bg-slate-100 hover:bg-slate-200 text-slate-600 hidden">
-                                Cancelar
-                            </button>
+                    <!-- Formulário Lateral -->
+                    <aside class="space-y-6">
+                        <div class="card-premium p-6">
+                            <h3 id="form-title" class="text-sm font-bold text-slate-800 mb-5">Adicionar Serviço</h3>
+                            <form id="streaming-form" class="space-y-4">
+                                <div class="space-y-1.5">
+                                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Nome do Streaming</label>
+                                    <input type="text" id="f-nome" class="input-premium" placeholder="Ex: Netflix" required>
+                                </div>
+                                
+                                <div class="space-y-1.5">
+                                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Valor Mensal</label>
+                                    <input type="number" step="0.01" id="f-valor" class="input-premium" placeholder="0.00" required>
+                                </div>
+                                
+                                <div class="space-y-1.5">
+                                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Pagador</label>
+                                    <select id="f-pagador" class="input-premium appearance-none cursor-pointer">
+                                        <option value="Luis">Luis</option>
+                                        <option value="Ivonei">Ivonei</option>
+                                        <option value="Luciano">Luciano</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="space-y-1.5">
+                                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Participantes</label>
+                                    <div class="grid grid-cols-1 gap-2 p-3 bg-slate-50 border border-slate-200 rounded-xl">
+                                        <label class="flex items-center gap-3 cursor-pointer group">
+                                            <input type="checkbox" name="f-participantes" value="Luis" class="w-4 h-4 text-blue-600 rounded-lg border-slate-300 focus:ring-blue-500" checked>
+                                            <span class="text-xs font-semibold text-slate-600 group-hover:text-slate-900">Luis</span>
+                                        </label>
+                                        <label class="flex items-center gap-3 cursor-pointer group">
+                                            <input type="checkbox" name="f-participantes" value="Ivonei" class="w-4 h-4 text-blue-600 rounded-lg border-slate-300 focus:ring-blue-500">
+                                            <span class="text-xs font-semibold text-slate-600 group-hover:text-slate-900">Ivonei</span>
+                                        </label>
+                                        <label class="flex items-center gap-3 cursor-pointer group">
+                                            <input type="checkbox" name="f-participantes" value="Luciano" class="w-4 h-4 text-blue-600 rounded-lg border-slate-300 focus:ring-blue-500">
+                                            <span class="text-xs font-semibold text-slate-600 group-hover:text-slate-900">Luciano</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="flex flex-col gap-3 pt-2">
+                                    <button type="submit" id="btn-save" class="btn-premium bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-200">
+                                        Confirmar Registro
+                                    </button>
+                                    <button type="button" id="btn-cancel" onclick="resetFormUI()" class="btn-premium bg-slate-100 hover:bg-slate-200 text-slate-600 hidden">
+                                        Descartar
+                                    </button>
+                                </div>
+                            </form>
                         </div>
-                    </form>
+                    </aside>
                 </div>
-            </aside>
-        </div>
-    </main>
+            </div>
+        </main>
+    </div>
+
 
     <!-- Modal de Divisão Detalhada -->
     <div id="modal-divisao" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden items-center justify-center p-6 transition-all">

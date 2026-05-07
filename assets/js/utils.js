@@ -41,11 +41,22 @@ function obterChaveMesAtual() {
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
 }
 
-function obterMesAtualFormatado() {
-    const meses = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
-    const d = new Date();
-    return `${meses[d.getMonth()]}/${d.getFullYear()}`;
+function formatarChaveMes(chave) {
+    const [ano, mes] = chave.split('-');
+    return `${MESES_NOMES[parseInt(mes) - 1].substring(0, 3)}/${ano}`;
 }
+
+function obterChaveMesAnterior(chave) {
+    const [ano, mes] = chave.split('-').map(Number);
+    let prevMes = mes - 1;
+    let prevAno = ano;
+    if (prevMes === 0) {
+        prevMes = 12;
+        prevAno--;
+    }
+    return `${prevAno}-${String(prevMes).padStart(2, '0')}`;
+}
+
 
 function calcularDivisoes(streamings) {
     const totais = {};
@@ -67,17 +78,16 @@ function calcularDivisoes(streamings) {
     return { totais, detalhes };
 }
 
-function gerarTextoWhatsApp(state) {
-    const { totais, detalhes } = calcularDivisoes(state.streamings);
-    const mes = obterMesAtualFormatado();
-    const chave = obterChaveMesAtual();
-    const totalGeral = state.streamings.reduce((acc, s) => acc + s.valor, 0);
+function gerarTextoWhatsApp(monthData, currentMonth) {
+    const { totais, detalhes } = calcularDivisoes(monthData.streamings);
+    const mesFormatado = formatarChaveMes(currentMonth);
+    const totalGeral = monthData.streamings.reduce((acc, s) => acc + s.valor, 0);
 
-    let texto = `📺 *Resumo Streaming - ${mes}*\n\n`;
+    let texto = `📺 *Resumo Streaming - ${mesFormatado}*\n\n`;
     texto += `💰 *Total Geral:* ${formatarMoeda(totalGeral)}\n\n`;
 
     PESSOAS_PADRAO.forEach(pessoa => {
-        const status = state.pagamentos[chave][pessoa] === 'pago' ? '✅ Pago' : '⏳ Pendente';
+        const status = monthData.pagamentos[pessoa] === 'pago' ? '✅ Pago' : '⏳ Pendente';
         texto += `👤 *${pessoa}* (${status})\n`;
         texto += `Total: *${formatarMoeda(totais[pessoa])}*\n`;
         
@@ -89,3 +99,4 @@ function gerarTextoWhatsApp(state) {
 
     return texto;
 }
+

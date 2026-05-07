@@ -13,9 +13,10 @@ const STREAMINGS_PADRAO = [
     { id: 10, nome: "Meli+", valor: 0.00, pagador: "Luis", participantes: ["Luis"] }
 ];
 
+const MESES_NOMES = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+
 const CONFIG = {
-    CHAVE_STORAGE_STREAMINGS: 'streaming_data_v3',
-    CHAVE_STORAGE_PAGAMENTOS: 'payment_status_v3',
+    CHAVE_STORAGE_DADOS: 'streaming_dashboard_data_v1', // Nova chave para estrutura unificada
     CORES_PESSOAS: {
         "Luis": "blue",
         "Ivonei": "purple",
@@ -23,3 +24,4 @@ const CONFIG = {
     },
     ICON_PATH: 'assets/img/icons/'
 };
+
